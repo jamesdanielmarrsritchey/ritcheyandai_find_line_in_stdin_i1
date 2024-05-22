@@ -1,0 +1,166 @@
+jamesdanielmarrsritchey: Using C++, write a program which reads from stdin, checks if it contains a line starting with a value that is specified by the user. The user will pass values as commandline arguments. All commandline arguments should have prefixes to indentify them. If there is a line starting with the value, the program should return the line. If there isn't, it should exit 1.
+
+GitHub Copilot: Here is a step-by-step plan:
+
+1. Parse the command-line arguments using getopt to identify the prefix and the value.
+2. Read from stdin line by line using getline.
+3. For each line, check if it starts with the value specified by the user.
+4. If it does, print the line and exit the program with a status of 0.
+5. If no line starts with the value, exit the program with a status of 1.
+
+Here is the C++ code:
+
+```cpp
+#include <iostream>
+#include <string>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    std::string prefix;
+    std::string value;
+    int opt;
+
+    while ((opt = getopt(argc, argv, "p:v:")) != -1) {
+        switch (opt) {
+            case 'p':
+                prefix = optarg;
+                break;
+            case 'v':
+                value = optarg;
+                break;
+            default:
+                std::cerr << "Usage: " << argv[0] << " -p prefix -v value" << std::endl;
+                return 1;
+        }
+    }
+
+    if (prefix.empty() || value.empty()) {
+        std::cerr << "Both prefix and value must be specified." << std::endl;
+        return 1;
+    }
+
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        if (line.substr(0, value.size()) == value) {
+            std::cout << line << std::endl;
+            return 0;
+        }
+    }
+
+    return 1;
+}
+```
+
+This program uses the getopt function to parse command-line arguments. The "p:" and "v:" options mean that both -p and -v require an argument. The optarg variable is set to the argument of the current option when getopt returns. The program reads from stdin using getline and checks if each line starts with the value specified by the user. If it does, it prints the line and exits with a status of 0. If no line starts with the value, it exits with a status of 1.
+
+jamesdanielmarrsritchey: The program only needs one argument, the string the user is searching for. The prefix for this argument should be "--string"
+
+GitHub Copilot: Here is a step-by-step plan:
+
+1. Parse the command-line arguments using getopt_long to identify the "--string" argument.
+2. Read from stdin line by line using getline.
+3. For each line, check if it starts with the value specified by the user.
+4. If it does, print the line and exit the program with a status of 0.
+5. If no line starts with the value, exit the program with a status of 1.
+
+Here is the C++ code:
+
+```cpp
+#include <iostream>
+#include <string>
+#include <getopt.h>
+
+int main(int argc, char *argv[]) {
+    std::string value;
+    int opt;
+    struct option long_options[] = {
+        {"string", required_argument, 0, 's'},
+        {0, 0, 0, 0}
+    };
+
+    while ((opt = getopt_long(argc, argv, "s:", long_options, NULL)) != -1) {
+        switch (opt) {
+            case 's':
+                value = optarg;
+                break;
+            default:
+                std::cerr << "Usage: " << argv[0] << " --string value" << std::endl;
+                return 1;
+        }
+    }
+
+    if (value.empty()) {
+        std::cerr << "The string value must be specified." << std::endl;
+        return 1;
+    }
+
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        if (line.substr(0, value.size()) == value) {
+            std::cout << line << std::endl;
+            return 0;
+        }
+    }
+
+    return 1;
+}
+```
+
+This program uses the getopt_long function to parse command-line arguments. The "--string" option means that it requires an argument. The optarg variable is set to the argument of the current option when getopt_long returns. The program reads from stdin using getline and checks if each line starts with the value specified by the user. If it does, it prints the line and exits with a status of 0. If no line starts with the value, it exits with a status of 1.
+
+jamesdanielmarrsritchey: If there are multiple lines that would match the string, they should all be returned.
+
+GitHub Copilot: Here is a step-by-step plan:
+
+1. Parse the command-line arguments using getopt_long to identify the "--string" argument.
+2. Read from stdin line by line using getline.
+3. For each line, check if it starts with the value specified by the user.
+4. If it does, print the line.
+5. After reading all lines, if at least one line started with the value, exit the program with a status of 0.
+6. If no line started with the value, exit the program with a status of 1.
+
+Here is the C++ code:
+
+```cpp
+#include <iostream>
+#include <string>
+#include <getopt.h>
+
+int main(int argc, char *argv[]) {
+    std::string value;
+    int opt;
+    struct option long_options[] = {
+        {"string", required_argument, 0, 's'},
+        {0, 0, 0, 0}
+    };
+
+    while ((opt = getopt_long(argc, argv, "s:", long_options, NULL)) != -1) {
+        switch (opt) {
+            case 's':
+                value = optarg;
+                break;
+            default:
+                std::cerr << "Usage: " << argv[0] << " --string value" << std::endl;
+                return 1;
+        }
+    }
+
+    if (value.empty()) {
+        std::cerr << "The string value must be specified." << std::endl;
+        return 1;
+    }
+
+    std::string line;
+    bool found = false;
+    while (std::getline(std::cin, line)) {
+        if (line.substr(0, value.size()) == value) {
+            std::cout << line << std::endl;
+            found = true;
+        }
+    }
+
+    return found ? 0 : 1;
+}
+```
+
+This program uses the getopt_long function to parse command-line arguments. The "--string" option means that it requires an argument. The optarg variable is set to the argument of the current option when getopt_long returns. The program reads from stdin using getline and checks if each line starts with the value specified by the user. If it does, it prints the line. After reading all lines, if at least one line started with the value, it exits with a status of 0. If no line started with the value, it exits with a status of 1.

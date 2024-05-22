@@ -1,1 +1,0 @@
-# ritcheyandai_find_line_in_stdin_i1
